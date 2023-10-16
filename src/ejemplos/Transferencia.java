@@ -1,9 +1,36 @@
 package ejemplos;
 
+import actividades.Actividad5;
+
 public class Transferencia {
 
+    public static void main(String[] args) {
 
-    class Hilo implements Runnable {
+        Cuenta c1,c2;
+        c1 = new Cuenta();
+        c2 = new Cuenta();
+
+        Thread t1 = new Thread(new Hilo(c1,c2));
+        Thread t2 = new Thread(new Hilo(c2,c1));
+
+        t1.start();
+        t2.start();
+
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("C1: " + c1.saldo);
+        System.out.println("C2: " + c2.saldo);
+
+    }
+
+
+
+    static class Hilo implements Runnable {
 
         private Cuenta c1;
         private Cuenta c2;
@@ -16,17 +43,45 @@ public class Transferencia {
         @Override
         public void run() {
             for(int i=0;i<1000000;i++){
-                c1.sacar(1);
-                c2.incrementa(1);
+                transaccion(c1,c2,1);
+            }
+        }
+
+        private void transaccion(Cuenta c1, Cuenta c2, int i) {
+
+            Cuenta aux;
+
+            if(c1.numCuenta>c2.numCuenta){
+                synchronized (c2) {
+                    synchronized (c1) {
+                        c1.sacar(1);
+                        c2.incrementa(1);
+                    }
+                }
+            }else {
+                synchronized (c1) {
+                    synchronized (c2) {
+                        c1.sacar(1);
+                        c2.incrementa(1);
+                    }
+                }
             }
         }
     }
 
-    class Cuenta {
+    static class Cuenta {
+
+        static int actual = 0;
         private int saldo;
+        private int numCuenta;
 
         public Cuenta() {
             saldo = 1000000;
+            numCuenta = actual++;
+        }
+
+        public int getNumCuenta() {
+            return numCuenta;
         }
 
         public void incrementa(int cantidad){
