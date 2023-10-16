@@ -1,9 +1,10 @@
 package ejemplos;
 
-import actividades.Actividad5;
+public class TransferenciaCorregido {
 
-public class Transferencia {
-
+    // Independientemente como asignemos las cuentas,
+    // siempre se bloqueara primero la que tenga un numero inferior,
+    // con lo que eviatamos el interbloqueo entre los hilos
     public static void main(String[] args) {
 
         Cuenta c1,c2;
@@ -48,8 +49,6 @@ public class Transferencia {
         }
 
         private void transaccion(Cuenta c1, Cuenta c2, int i) {
-
-            Cuenta aux;
 
             if(c1.numCuenta>c2.numCuenta){
                 synchronized (c2) {
